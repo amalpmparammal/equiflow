@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0D1B2A">
+<title>EquiFlow — Debt Accelerator & Finance Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ─── RESET & TOKENS ──────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#0D1B2A;--navy2:#162233;--navy3:#1E3048;--navy4:#243A56;
+  --em:#27AE60;--em2:#1E8449;--em-lt:#E8F8EF;--em-glow:rgba(39,174,96,0.18);
+  --gold:#F0A500;--gold-lt:#FEF6DC;
+  --red:#E74C3C;--red-lt:#FDECEA;
+  --blue:#3498DB;--blue-lt:#EBF5FB;
+  --purple:#9B59B6;--purple-lt:#F5EEF8;
+  --bg:#F0F4F8;--surface:#FFFFFF;--surface2:#F8FAFC;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --text:#0D1B2A;--muted:#64748B;--hint:#94A3B8;
+  --r:12px;--r-lg:18px;--r-xl:24px;
+  --sh:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
+  --sh-lg:0 8px 32px rgba(13,27,42,0.16);
+  --bottom-nav:64px;
+  --header:60px;
+}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;overscroll-behavior:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ─── AUTH SCREEN ─────────────────────────────────────────── */
+#authScreen{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(39,174,96,0.18) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(52,152,219,0.12) 0%,transparent 60%);pointer-events:none}
+.auth-card{position:relative;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(20px);border-radius:var(--r-xl);padding:32px 28px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,0.4)}
+.auth-logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:28px}
+.auth-logo-mark{width:52px;height:52px;flex-shrink:0}
+.auth-brand{display:flex;flex-direction:column}
+.auth-brand-name{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;letter-spacing:-0.5px;line-height:1}
+.auth-brand-tag{font-size:10px;color:var(--em);letter-spacing:0.12em;text-transform:uppercase;font-weight:700;margin-top:3px}
+.auth-tab-row{display:flex;background:rgba(255,255,255,0.06);border-radius:10px;padding:3px;margin-bottom:22px}
+.auth-tab{flex:1;padding:9px;text-align:center;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);transition:all 0.2s}
+.auth-tab.on{background:var(--em);color:#fff}
+.af{margin-bottom:14px}
+.af label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px}
+.af input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:14px;color:#fff;font-family:inherit;outline:none;transition:border-color 0.2s}
+.af input::placeholder{color:rgba(255,255,255,0.25)}
+.af input:focus{border-color:var(--em);background:rgba(39,174,96,0.08)}
+.auth-btn{width:100%;padding:14px;border:none;border-radius:11px;background:var(--em);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.02em;margin-top:4px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-btn:hover{background:var(--em2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(39,174,96,0.35)}
+.auth-demo{width:100%;margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,0.15);border-radius:11px;background:transparent;color:rgba(255,255,255,0.7);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.auth-demo:hover{border-color:rgba(255,255,255,0.35);color:#fff}
+.auth-err{display:none;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:10px 14px;font-size:12px;color:#fc8a82;margin-top:10px}
+.auth-note{text-align:center;margin-top:20px;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.6}
+
+/* ─── APP SHELL ──────────────────────────────────────────── */
+#app{display:none;flex-direction:column;min-height:100vh;padding-bottom:var(--bottom-nav)}
+
+/* ─── STICKY HEADER ──────────────────────────────────────── */
+.top-header{position:sticky;top:0;z-index:200;background:var(--navy);padding:0 16px;height:var(--header);display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 16px rgba(0,0,0,0.25)}
+.header-logo{display:flex;align-items:center;gap:10px}
+.logo-svg{width:36px;height:36px;flex-shrink:0}
+.header-brand{display:flex;flex-direction:column}
+.header-brand-name{font-family:'DM Serif Display',serif;font-size:20px;color:#fff;letter-spacing:-0.3px;line-height:1}
+.header-brand-tag{font-size:8.5px;color:var(--em);letter-spacing:0.12em;text-transform:uppercase;font-weight:700}
+.header-actions{display:flex;gap:8px;align-items:center}
+.hbtn{padding:7px 13px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all 0.18s;white-space:nowrap}
+.hbtn-em{background:var(--em);color:#fff}
+.hbtn-em:hover{background:var(--em2)}
+.hbtn-gold{background:var(--gold);color:#fff}
+.hbtn-gold:hover{background:#D48800}
+.hbtn-outline{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15)}
+.hbtn-outline:hover{background:rgba(255,255,255,0.14)}
+
+/* ─── BOTTOM NAV ─────────────────────────────────────────── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav);background:var(--navy);border-top:1px solid rgba(255,255,255,0.08);display:flex;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.25)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:3px;transition:all 0.2s;padding:4px 2px;position:relative;min-width:0}
+.bnav-item.on{background:none}
+.bnav-item.on .bnav-icon{color:var(--em)}
+.bnav-item.on .bnav-label{color:var(--em)}
+.bnav-item.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--em);border-radius:0 0 2px 2px}
+.bnav-icon{font-size:20px;color:rgba(255,255,255,0.35);transition:all 0.2s}
+.bnav-label{font-size:9.5px;font-weight:700;color:rgba(255,255,255,0.3);transition:all 0.2s;letter-spacing:0.02em;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─── PAGE SECTIONS ──────────────────────────────────────── */
+.section{display:none;padding:16px;animation:fadeUp 0.3s ease}
+.section.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── CARDS ──────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+.card-sm{padding:14px}
+.card-head{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-head-left{display:flex;align-items:center;gap:7px}
+.card-title-icon{font-size:14px}
+
+/* ─── METRICS GRID ───────────────────────────────────────── */
+.metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.metrics-row-3{grid-template-columns:repeat(3,1fr)}
+.met{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.met::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--mc,var(--em))}
+.met-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.met-value{font-size:18px;font-weight:800;color:var(--text);line-height:1;font-family:'DM Serif Display',serif}
+.met-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.met.em{--mc:var(--em);}.met-value.em{color:var(--em)}
+.met.red{--mc:var(--red);}.met-value.red{color:var(--red)}
+.met.gold{--mc:var(--gold);}.met-value.gold{color:var(--gold)}
+.met.blue{--mc:var(--blue);}.met-value.blue{color:var(--blue)}
+.met.navy{--mc:var(--navy);}.met-value.navy{color:var(--navy)}
+.met.purple{--mc:var(--purple);}.met-value.purple{color:var(--purple)}
+
+/* ─── PROGRESS ───────────────────────────────────────────── */
+.prog-wrap{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-bar{height:100%;border-radius:99px;transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+
+/* ─── BADGES ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.bg-em{background:var(--em-lt);color:var(--em2)}
+.bg-red{background:var(--red-lt);color:#C0392B}
+.bg-gold{background:var(--gold-lt);color:#7D6608}
+.bg-blue{background:var(--blue-lt);color:#1A5276}
+.bg-navy{background:#E8EDF2;color:var(--navy)}
+.bg-purple{background:var(--purple-lt);color:var(--purple)}
+
+/* ─── ALERTS ─────────────────────────────────────────────── */
+.alert{padding:12px 14px;border-radius:var(--r);font-size:12.5px;line-height:1.6;margin-bottom:14px;display:flex;gap:10px;border-left:3px solid}
+.alert-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.al-em{background:var(--em-lt);border-color:var(--em);color:#0B5E2E}
+.al-gold{background:var(--gold-lt);border-color:var(--gold);color:#6E4C00}
+.al-red{background:var(--red-lt);border-color:var(--red);color:#7B241C}
+.al-blue{background:var(--blue-lt);border-color:var(--blue);color:#1A4E6E}
+.al-navy{background:#E8EDF2;border-color:var(--navy);color:var(--navy)}
+
+/* ─── FORMS ──────────────────────────────────────────────── */
+.fg{margin-bottom:12px}
+.flbl{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:0.04em}
+.finp{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text);background:var(--surface);font-family:inherit;outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none}
+.finp:focus{border-color:var(--em);box-shadow:0 0 0 3px var(--em-glow)}
+.pfx{position:relative}
+.pfx-sym{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:700;color:var(--muted);pointer-events:none}
+.pfx .finp{padding-left:26px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row-3{grid-template-columns:1fr 1fr 1fr}
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn{padding:11px 18px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:all 0.18s;white-space:nowrap}
+.btn-em{background:var(--em);color:#fff}.btn-em:hover{background:var(--em2)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#D48800}
+.btn-red{background:var(--red-lt);color:var(--red);border:1px solid var(--red)}.btn-red:hover{background:var(--red);color:#fff}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--border2)}.btn-outline:hover{background:var(--border)}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:8px}
+.btn-xs{padding:5px 10px;font-size:11px;border-radius:7px}
+.btn-full{width:100%;padding:14px}
+
+/* ─── TABLES ─────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.tbl-scroll{max-height:280px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:380px}
+th{background:var(--navy);color:rgba(255,255,255,0.8);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.tfoot td{background:#E8EDF2;font-weight:800;border-top:2px solid var(--border2);color:var(--navy)}
+
+/* ─── LOAN ITEMS ─────────────────────────────────────────── */
+.loan-item{border:1.5px solid var(--border);border-radius:var(--r-lg);margin-bottom:12px;background:var(--surface);overflow:hidden;box-shadow:var(--sh);transition:border-color 0.2s}
+.loan-item-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:linear-gradient(135deg,var(--navy2) 0%,var(--navy3) 100%);flex-wrap:wrap;gap:8px}
+.loan-item-name{font-size:15px;font-weight:800;color:#fff;font-family:'DM Serif Display',serif}
+.loan-item-rate{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px}
+.loan-item-body{padding:14px 16px}
+.loan-color-strip{height:3px;background:var(--lc,var(--em))}
+
+/* ─── STEP CARDS ─────────────────────────────────────────── */
+.step-card{display:flex;gap:12px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;box-shadow:var(--sh)}
+.step-num{width:30px;height:30px;min-width:30px;border-radius:50%;background:var(--em);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.step-body h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.step-body p{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ─── GOAL CARDS ─────────────────────────────────────────── */
+.goal-card{border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:12px;background:var(--surface);box-shadow:var(--sh)}
+
+/* ─── ACCELERATOR ────────────────────────────────────────── */
+.path-card{border-radius:var(--r-lg);padding:18px;margin-bottom:12px}
+.path-a{background:var(--red-lt);border:1.5px solid #F5B7B1}
+.path-b{background:var(--em-lt);border:1.5px solid #A9DFBF}
+.path-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:10px}
+.path-a .path-title{color:var(--red)}
+.path-b .path-title{color:var(--em2)}
+.crossover{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:var(--r-xl);padding:24px;text-align:center;margin-bottom:16px;box-shadow:var(--sh-lg)}
+.crossover-val{font-family:'DM Serif Display',serif;font-size:40px;color:var(--em);line-height:1;margin:6px 0}
+.crossover-lbl{font-size:12px;color:rgba(255,255,255,0.6)}
+
+/* ─── EXPENSE ROWS ───────────────────────────────────────── */
+.exp-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;background:var(--surface);transition:border-color 0.2s}
+.exp-row.warn{border-color:var(--gold);background:var(--gold-lt)}
+.exp-row.danger{border-color:var(--red);background:var(--red-lt)}
+.exp-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.exp-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;min-width:40px}
+.exp-bar{height:100%;border-radius:2px;transition:width 0.4s}
+.exp-input{border:none;background:transparent;font-size:13px;font-weight:700;color:var(--text);width:90px;text-align:right;font-family:inherit;outline:none}
+.exp-name-input{border:none;background:transparent;font-size:12px;font-weight:600;color:var(--muted);flex:1;font-family:inherit;outline:none;min-width:60px}
+
+/* ─── ADMIN ──────────────────────────────────────────────── */
+.admin-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:var(--r-lg);padding:16px;color:#fff}
+.admin-card-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.admin-card-value{font-family:'DM Serif Display',serif;font-size:28px;color:#fff}
+
+/* ─── CHART ──────────────────────────────────────────────── */
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-lg{position:relative;height:280px}
+.chart-wrap-sm{position:relative;height:160px}
+
+/* ─── TABS ───────────────────────────────────────────────── */
+.tab-row{display:flex;background:var(--surface2);border-radius:10px;padding:3px;border:1px solid var(--border);margin-bottom:14px;overflow-x:auto;gap:2px}
+.tab-btn{flex:1;min-width:60px;padding:8px 4px;text-align:center;cursor:pointer;border-radius:8px;font-size:11px;font-weight:700;color:var(--muted);transition:all 0.2s;white-space:nowrap}
+.tab-btn.on{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(13,27,42,0.2)}
+
+/* ─── HERO BANNER (dashboard) ────────────────────────────── */
+.hero-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 60%,rgba(39,174,96,0.3) 100%);border-radius:var(--r-xl);padding:22px 20px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(39,174,96,0.25) 0%,transparent 70%)}
+.hero-banner::after{content:'';position:absolute;bottom:-20px;left:40%;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(52,152,219,0.15) 0%,transparent 70%)}
+.hero-title{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;line-height:1.2;margin-bottom:5px;position:relative;z-index:1}
+.hero-sub{font-size:12px;color:rgba(255,255,255,0.55);position:relative;z-index:1;margin-bottom:14px}
+.hero-stats{display:flex;gap:20px;position:relative;z-index:1;flex-wrap:wrap}
+.hero-stat{display:flex;flex-direction:column}
+.hero-stat-val{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;line-height:1}
+.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;font-weight:700}
+
+/* ─── SECTION PAGE HEADER ────────────────────────────────── */
+.page-hdr{margin-bottom:16px}
+.page-hdr h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy);margin-bottom:3px}
+.page-hdr p{font-size:12px;color:var(--muted)}
+
+/* ─── SECTION DIVIDER ────────────────────────────────────── */
+.sdiv{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:var(--sh-lg)}
+#toast.show{opacity:1}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(min-width:600px){
+  .section{padding:20px 24px}
+  .metrics-row{grid-template-columns:repeat(3,1fr)}
+  .form-row{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:900px){
+  #app{padding-bottom:0}
+  .bottom-nav{display:none}
+  .top-header{padding:0 32px}
+  .section{max-width:900px;margin:0 auto;padding:24px 0}
+  .hero-title{font-size:28px}
+  .metrics-row{grid-template-columns:repeat(4,1fr)}
+}
+@media print{
+  #authScreen,#app .bottom-nav,#app .top-header,.hbtn,.btn{display:none!important}
+  .section{display:block!important;padding:0}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<div id="authScreen">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <!-- SVG Logo Mark -->
+      <svg class="auth-logo-mark" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#27AE60"/>
+            <stop offset="100%" stop-color="#1ABC9C"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="52" y1="0" x2="0" y2="52" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3498DB"/>
+            <stop offset="100%" stop-color="#27AE60"/>
+          </linearGradient>
+        </defs>
+        <rect width="52" height="52" rx="14" fill="#162233"/>
+        <!-- Flow arrows forming equity symbol -->
+        <path d="M10 36 C10 36 18 28 26 26 C34 24 42 16 42 16" stroke="url(#lg1)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M10 26 C10 26 18 22 26 22 C34 22 42 14 42 14" stroke="url(#lg2)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <!-- Arrow head -->
+        <path d="M36 10 L42 16 L36 22" stroke="url(#lg1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Bars (debt payoff) -->
+        <rect x="10" y="38" width="5" height="8" rx="2" fill="#27AE60" opacity="0.9"/>
+        <rect x="17" y="34" width="5" height="12" rx="2" fill="#27AE60" opacity="0.75"/>
+        <rect x="24" y="30" width="5" height="16" rx="2" fill="#27AE60" opacity="0.6"/>
+      </svg>
+      <div class="auth-brand">
+        <div class="auth-brand-name">EquiFlow</div>
+        <div class="auth-brand-tag">Debt Accelerator · Finance Architect</div>
+      </div>
+    </div>
+    <div class="auth-tab-row">
+      <div class="auth-tab on" id="at-login" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" id="at-reg" onclick="switchAuthTab('reg')">Sign Up</div>
+    </div>
+    <div id="loginFrm">
+      <div class="af"><label>Email</label><input type="email" id="lemail" placeholder="you@email.com"></div>
+      <div class="af"><label>Password</label><input type="password" id="lpass" placeholder="••••••••"></div>
+      <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+    </div>
+    <div id="regFrm" style="display:none">
+      <div class="af"><label>Full Name</label><input type="text" id="rname" placeholder="Your name"></div>
+      <div class="af"><label>Email</label><input type="email" id="remail" placeholder="you@email.com"></div>
+      <div class="af"><label>Password</label><input type="password" id="rpass" placeholder="Min 6 characters"></div>
+      <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+    </div>
+    <div id="aerr" class="auth-err"></div>
+    <button class="auth-demo" onclick="demoLogin()">🎯 Try Demo — No Account Needed</button>
+    <div class="auth-note">🔒 Your financial data is stored locally.<br>We never share or sell your information.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="header-logo">
+      <svg class="logo-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="36" height="36" rx="10" fill="#162233"/>
+        <path d="M6 24 C6 24 13 18 18 17 C23 16 30 10 30 10" stroke="url(#hlg1)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M25 6 L30 10 L26 15" stroke="#27AE60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <rect x="6" y="26" width="4" height="6" rx="1.5" fill="#27AE60" opacity="0.9"/>
+        <rect x="12" y="23" width="4" height="9" rx="1.5" fill="#27AE60" opacity="0.7"/>
+        <rect x="18" y="20" width="4" height="12" rx="1.5" fill="#27AE60" opacity="0.5"/>
+        <defs><linearGradient id="hlg1" x1="6" y1="24" x2="30" y2="10" gradientUnits="userSpaceOnUse"><stop stop-color="#27AE60"/><stop offset="1" stop-color="#3498DB"/></linearGradient></defs>
+      </svg>
+      <div class="header-brand">
+        <div class="header-brand-name">EquiFlow</div>
+        <div class="header-brand-tag">Finance Architect</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="hbtn hbtn-outline" onclick="saveData()" style="display:none" id="saveBtn">💾</button>
+      <button class="hbtn hbtn-gold btn-sm" onclick="exportPDF()">📄 PDF</button>
+      <button class="hbtn hbtn-em btn-sm" onclick="exportExcel()">📥 XLS</button>
+    </div>
+  </header>
+
+  <!-- SECTIONS -->
+  <div class="section on" id="s-dash"></div>
+  <div class="section" id="s-income"></div>
+  <div class="section" id="s-loans"></div>
+  <div class="section" id="s-accel"></div>
+  <div class="section" id="s-goals"></div>
+  <div class="section" id="s-reports"></div>
+  <div class="section" id="s-admin"></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="bnav-item on" id="bn-dash" onclick="nav('dash')"><div class="bnav-icon">🏠</div><div class="bnav-label">Home</div></div>
+    <div class="bnav-item" id="bn-income" onclick="nav('income')"><div class="bnav-icon">💰</div><div class="bnav-label">Budget</div></div>
+    <div class="bnav-item" id="bn-loans" onclick="nav('loans')"><div class="bnav-icon">🏦</div><div class="bnav-label">Loans</div></div>
+    <div class="bnav-item" id="bn-accel" onclick="nav('accel')"><div class="bnav-icon">🚀</div><div class="bnav-label">Accelerate</div></div>
+    <div class="bnav-item" id="bn-goals" onclick="nav('goals')"><div class="bnav-icon">🎯</div><div class="bnav-label">Goals</div></div>
+    <div class="bnav-item" id="bn-reports" onclick="nav('reports')"><div class="bnav-icon">📊</div><div class="bnav-label">Reports</div></div>
+  </nav>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   EQUIFLOW ENGINE
+══════════════════════════════════════════════ */
+const INR = v=>'₹'+Math.abs(Math.round(v||0)).toLocaleString('en-IN');
+const S = v=>{const a=Math.abs(v||0);if(a>=10000000)return(v<0?'-':'')+'₹'+(a/10000000).toFixed(2)+'Cr';if(a>=100000)return(v<0?'-':'')+'₹'+(a/100000).toFixed(2)+'L';if(a>=1000)return(v<0?'-':'')+'₹'+(a/1000).toFixed(1)+'K';return(v<0?'-':'')+'₹'+Math.round(a);};
+const PCT=v=>(+v||0).toFixed(1)+'%';
+const COLORS=['#27AE60','#3498DB','#E74C3C','#F0A500','#9B59B6','#1ABC9C','#E67E22','#2C3E50'];
+
+let C={}; // charts
+function dc(k){if(C[k]){C[k].destroy();delete C[k];}}
+
+/* ── STATE ── */
+let ST={
+  user:null,isAdmin:false,
+  income:75000,otherIncome:0,
+  inflRate:3.7,extraPay:0,
+  expenses:[
+    {id:1,icon:'🏠',name:'Housing/Rent',amount:12000,budget:25},
+    {id:2,icon:'🍽️',name:'Food & Groceries',amount:7000,budget:18},
+    {id:3,icon:'🚗',name:'Transport',amount:4000,budget:10},
+    {id:4,icon:'📱',name:'Utilities & Bills',amount:3000,budget:8},
+    {id:5,icon:'🎭',name:'Entertainment',amount:3500,budget:8},
+    {id:6,icon:'🏥',name:'Health',amount:2500,budget:6},
+  ],
+  loans:[
+    {id:1,name:'Home Loan',type:'Home',principal:2500000,rate:8.5,tenure:240,startDate:'2023-01-01',paidTill:'2025-05-01',customEMI:''},
+    {id:2,name:'Gold Loan',type:'Gold',principal:150000,rate:11,tenure:24,startDate:'2024-06-01',paidTill:'2025-05-01',customEMI:''},
+    {id:3,name:'Car Loan',type:'Car',principal:600000,rate:9.5,tenure:60,startDate:'2024-01-01',paidTill:'2025-05-01',customEMI:''},
+  ],
+  goals:[
+    {id:1,name:'Marriage Fund',target:100000,months:8,saved:15000},
+    {id:2,name:'Emergency Fund',target:300000,months:18,saved:60000},
+  ],
+  nLoanId:4,nExpId:7,nGoalId:3,
+  adminData:{users:1284,sessions:347,loans:3201,pdfs:229}
+};
+
+/* ── MATH ── */
+function emi(p,r,m){if(!r)return p/m;const mr=r/100/12;return p*mr*Math.pow(1+mr,m)/(Math.pow(1+mr,m)-1);}
+function sched(p,r,m,ce){
+  const mr=r/100/12,e=ce||emi(p,r,m);
+  let bal=p,rows=[],ti=0,mo=0;
+  while(bal>0.5&&mo<m*3){mo++;const ip=bal*mr,pp=Math.min(e-ip,bal);bal-=pp;ti+=ip;rows.push({month:mo,emi:ip+pp,principal:pp,interest:ip,balance:Math.max(0,bal)});if(bal<0.5)break;}
+  return{rows,totalInterest:ti,totalPaid:p+ti,months:rows.length};
+}
+function realCost(ni,months){return ni/Math.pow(1+ST.inflRate/100/12,months);}
+function outstanding(loan){
+  if(!loan.startDate||!loan.paidTill)return null;
+  const s=new Date(loan.startDate),p=new Date(loan.paidTill);if(p<=s)return null;
+  let mp=(p.getFullYear()-s.getFullYear())*12+(p.getMonth()-s.getMonth());
+  mp=Math.max(0,Math.min(mp,loan.tenure));if(!mp)return null;
+  const sc=sched(loan.principal,loan.rate,loan.tenure);
+  const paid=sc.rows.slice(0,mp);
+  return{monthsPaid:mp,interestPaid:paid.reduce((s,r)=>s+r.interest,0),principalPaid:paid.reduce((s,r)=>s+r.principal,0),totalPaid:paid.reduce((s,r)=>s+r.emi,0),outstanding:sc.rows[mp-1]?.balance||0,remainingMonths:Math.max(0,loan.tenure-mp)};
+}
+
+/* ── AUTH ── */
+function switchAuthTab(t){
+  ['login','reg'].forEach(k=>{document.getElementById('at-'+k).classList.toggle('on',k===t);document.getElementById(k==='login'?'loginFrm':'regFrm').style.display=k===t?'block':'none';});
+  document.getElementById('aerr').style.display='none';
+}
+function authErr(msg){const e=document.getElementById('aerr');e.textContent=msg;e.style.display='block';}
+function doLogin(){
+  const em=document.getElementById('lemail').value.trim(),pw=document.getElementById('lpass').value;
+  if(!em||!pw){authErr('Please enter email and password.');return;}
+  loginUser({name:em.split('@')[0],email:em,isAdmin:em.toLowerCase().includes('admin'),demo:false});
+}
+function doRegister(){
+  const nm=document.getElementById('rname').value.trim(),em=document.getElementById('remail').value.trim(),pw=document.getElementById('rpass').value;
+  if(!nm||!em||pw.length<6){authErr('Fill all fields. Password min 6 chars.');return;}
+  loginUser({name:nm,email:em,isAdmin:false,demo:false});
+}
+function demoLogin(){loginUser({name:'Demo User',email:'demo@equiflow.app',isAdmin:true,demo:true});}
+function loginUser(user){
+  ST.user=user;ST.isAdmin=user.isAdmin;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('app').style.flexDirection='column';
+  if(user.isAdmin){
+    const bn=document.querySelector('.bottom-nav');
+    const el=document.createElement('div');
+    el.className='bnav-item';el.id='bn-admin';el.onclick=()=>nav('admin');
+    el.innerHTML='<div class="bnav-icon">⚙️</div><div class="bnav-label">Admin</div>';
+    bn.appendChild(el);
+  }
+  document.getElementById('saveBtn').style.display='flex';
+  loadData();
+  nav('dash');
+}
+function doLogout(){if(!confirm('Sign out?'))return;document.getElementById('app').style.display='none';document.getElementById('authScreen').style.display='flex';}
+
+/* ── PERSIST ── */
+function saveData(){
+  try{localStorage.setItem('ef_data',JSON.stringify({income:ST.income,otherIncome:ST.otherIncome,expenses:ST.expenses,loans:ST.loans,goals:ST.goals,inflRate:ST.inflRate,nLoanId:ST.nLoanId,nExpId:ST.nExpId,nGoalId:ST.nGoalId}));toast('Saved ✓');}catch(e){toast('Save failed',1);}
+}
+function loadData(){
+  try{const d=localStorage.getItem('ef_data');if(d){const p=JSON.parse(d);Object.assign(ST,p);}}catch(e){}
+}
+
+/* ── TOAST ── */
+function toast(msg,err){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.style.background=err?'var(--red)':'var(--navy)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* ── NAV ── */
+let currentNav='dash';
+function nav(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('on'));
+  const sec=document.getElementById('s-'+id);if(sec)sec.classList.add('on');
+  const bn=document.getElementById('bn-'+id);if(bn)bn.classList.add('on');
+  currentNav=id;
+  // Scroll to top
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='dash')renderDash();
+  else if(id==='income')renderIncome();
+  else if(id==='loans')renderLoans();
+  else if(id==='accel')renderAccel();
+  else if(id==='goals')renderGoals();
+  else if(id==='reports')renderReports();
+  else if(id==='admin')renderAdmin();
+}
+
+/* ══════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════ */
+function renderDash(){
+  const totalInc=(+ST.income||0)+(+ST.otherIncome||0);
+  const totalExp=ST.expenses.reduce((s,e)=>s+(+e.amount||0),0);
+  const totalEMI=ST.loans.reduce((s,l)=>s+emi(l.principal,l.rate,l.tenure),0);
+  const tPrin=ST.loans.reduce((s,l)=>s+l.principal,0);
+  const tInt=ST.loans.reduce((s,l)=>s+sched(l.principal,l.rate,l.tenure).totalInterest,0);
+  const netCash=totalInc-totalExp-totalEMI;
+  const sorted=[...ST.loans].sort((a,b)=>b.rate-a.rate);
+
+  document.getElementById('s-dash').innerHTML=`
+  <div class="hero-banner">
+    <div class="hero-title">Hello, ${ST.user?.name?.split(' ')[0]||'there'} 👋</div>
+    <div class="hero-sub">Your financial snapshot · ${new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">${S(totalInc)}</div><div class="hero-stat-lbl">Monthly Income</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" style="color:${netCash>=0?'#6EE7B7':'#FC8181'}">${netCash<0?'-':''}${S(Math.abs(netCash))}</div><div class="hero-stat-lbl">Net Cash Flow</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" style="color:#FCD34D">${S(tPrin)}</div><div class="hero-stat-lbl">Total Debt</div></div>
+    </div>
+  </div>
+  <div class="metrics-row">
+    <div class="met em"><div class="met-label">Monthly Income</div><div class="met-value em">${S(totalInc)}</div></div>
+    <div class="met red"><div class="met-label">Monthly EMIs</div><div class="met-value red">${S(totalEMI)}</div><div class="met-sub">${PCT(totalEMI/totalInc*100)} of income</div></div>
+    <div class="met gold"><div class="met-label">Total Interest</div><div class="met-value gold">${S(tInt)}</div></div>
+    <div class="met ${netCash>=0?'em':'red'}"><div class="met-label">Free Cash</div><div class="met-value ${netCash>=0?'em':'red'}">${S(Math.abs(netCash))}</div><div class="met-sub">${netCash<0?'⚠ Deficit':'Available/mo'}</div></div>
+  </div>
+  ${netCash<0?`<div class="alert al-red"><div class="alert-icon">🚨</div><div><strong>Cash Flow Alert:</strong> Your monthly expenses + EMIs exceed your income by ${INR(Math.abs(netCash))}. Review your budget immediately.</div></div>`:''}
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">📉</span>Debt Balance Over Time</div></div>
+    <div class="chart-wrap"><canvas id="debtChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">🎯</span>Priority Action Plan — Debt Avalanche</div></div>
+    ${sorted.map((l,i)=>`<div class="step-card">
+      <div class="step-num" style="background:${i===0?'var(--red)':'var(--em)'}">${i+1}</div>
+      <div class="step-body">
+        <h4>${l.name} <span class="badge ${i===0?'bg-red':'bg-em'}">${l.rate}% p.a.</span></h4>
+        <p>EMI ${INR(emi(l.principal,l.rate,l.tenure))}/mo · Interest ${S(sched(l.principal,l.rate,l.tenure).totalInterest)}${i===0?' · <strong style="color:var(--red)">Attack this first!</strong>':''}</p>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">💸</span>Cash Flow Breakdown</div></div>
+    <div class="chart-wrap-sm"><canvas id="cfChart"></canvas></div>
+  </div>
+  <footer style="text-align:center;padding:20px 16px;font-size:10.5px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border);margin-top:8px">
+    <strong style="color:var(--navy)">© 2026 EquiFlow. All rights reserved.</strong><br>
+    <em>Financial Disclaimer: EquiFlow is an educational planning tool only. Not professional financial or investment advice. Consult a qualified advisor before making financial decisions. Past returns ≠ future results.</em>
+    <div style="margin-top:8px"><button class="btn btn-outline btn-sm" onclick="doLogout()">Sign Out</button></div>
+  </footer>`;
+
+  // Debt chart
+  dc('debtChart');
+  const dc_=document.getElementById('debtChart');
+  if(dc_){
+    const datasets=ST.loans.map((l,i)=>{
+      const sc=sched(l.principal,l.rate,l.tenure);
+      const step=Math.max(1,Math.floor(sc.rows.length/20));
+      return{label:l.name,data:sc.rows.filter((_,idx)=>idx%step===0).map(r=>Math.round(r.balance)),borderColor:COLORS[i],backgroundColor:COLORS[i]+'15',fill:false,tension:0.4,pointRadius:0,borderWidth:2};
+    });
+    const labels=sched(ST.loans[0].principal,ST.loans[0].rate,ST.loans[0].tenure).rows.filter((_,i)=>i%Math.max(1,Math.floor(ST.loans[0].tenure/20))===0).map(r=>'Mo '+r.month);
+    C['debtChart']=new Chart(dc_,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{ticks:{callback:v=>S(v),font:{size:10}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{maxTicksLimit:6,font:{size:10}},grid:{display:false}}}}});
+  }
+  // Cashflow donut
+  dc('cfChart');
+  const cf_=document.getElementById('cfChart');
+  if(cf_&&totalInc>0){
+    C['cfChart']=new Chart(cf_,{type:'doughnut',data:{
+      labels:['EMI Payments','Living Expenses','Savings'],
+      datasets:[{data:[Math.round(totalEMI),Math.round(totalExp),Math.max(0,Math.round(netCash))],backgroundColor:['#E74C3C','#F0A500','#27AE60'],borderWidth:0}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}});
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INCOME & EXPENSES
+══════════════════════════════════════════════ */
+function renderIncome(){
+  const totalInc=(+ST.income||0)+(+ST.otherIncome||0);
+  const totalExp=ST.expenses.reduce((s,e)=>s+(+e.amount||0),0);
+  const totalEMI=ST.loans.reduce((s,l)=>s+emi(l.principal,l.rate,l.tenure),0);
+  const savings=totalInc-totalExp-totalEMI;
+  const alerts=ST.expenses.filter(e=>totalInc>0&&(+e.amount/totalInc*100)>e.budget*1.3);
+
+  document.getElementById('s-income').innerHTML=`
+  <div class="page-hdr"><h2>💰 Budget Manager</h2><p>Track income, spending, and get unwanted expense alerts</p></div>
+  <div class="card card-sm">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">💵</span>Income</div></div>
+    <div class="form-row">
+      <div class="fg"><label class="flbl">Monthly Salary (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${ST.income}" oninput="ST.income=+this.value;renderIncome()"></div></div>
+      <div class="fg"><label class="flbl">Other Income (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${ST.otherIncome}" oninput="ST.otherIncome=+this.value;renderIncome()"></div></div>
+    </div>
+  </div>
+  <div class="metrics-row">
+    <div class="met em"><div class="met-label">Total Income</div><div class="met-value em">${S(totalInc)}</div></div>
+    <div class="met red"><div class="met-label">Total Expenses</div><div class="met-value red">${S(totalExp)}</div></div>
+    <div class="met gold"><div class="met-label">Loan EMIs</div><div class="met-value gold">${S(totalEMI)}</div></div>
+    <div class="met ${savings>=0?'em':'red'}"><div class="met-label">Net Savings</div><div class="met-value ${savings>=0?'em':'red'}">${S(Math.abs(savings))}</div><div class="met-sub">${savings<0?'Deficit!':'Available'}</div></div>
+  </div>
+  ${alerts.length?`<div class="alert al-gold"><div class="alert-icon">⚠️</div><div><strong>Unwanted Expense Alert!</strong><br>${alerts.map(e=>{const p=totalInc>0?(+e.amount/totalInc*100):0;return`${e.icon} <b>${e.name}</b>: ${PCT(p)} of income (budget: ${e.budget}%). Cut by ${INR(+e.amount-(totalInc*e.budget/100))}.`;}).join('<br>')}</div></div>`:''}
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">🧾</span>Expense Categories</div><button class="btn btn-em btn-xs" onclick="addExp()">+ Add</button></div>
+    <div id="expList"></div>
+    <hr class="sdiv">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0">
+      <span style="font-size:13px;font-weight:700;color:var(--navy)">Total Expenses</span>
+      <span style="font-size:16px;font-weight:800;color:var(--red);font-family:'DM Serif Display',serif">${INR(totalExp)}</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">📊</span>Budget Breakdown</div></div>
+    <div class="chart-wrap-sm"><canvas id="budgetChart"></canvas></div>
+  </div>`;
+
+  // Expense rows
+  const expList=document.getElementById('expList');
+  expList.innerHTML=ST.expenses.map(e=>{
+    const pct=totalInc>0?(+e.amount/totalInc*100):0;
+    const warn=pct>e.budget*1.3,danger=pct>e.budget*1.6;
+    const barColor=danger?'var(--red)':warn?'var(--gold)':'var(--em)';
+    return`<div class="exp-row ${danger?'danger':warn?'warn':''}">
+      <div class="exp-icon">${e.icon}</div>
+      <div style="flex:1;min-width:0">
+        <input class="exp-name-input" value="${e.name}" onchange="upExp(${e.id},'name',this.value)">
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <div class="exp-bar-wrap"><div class="exp-bar" style="width:${Math.min(100,pct).toFixed(1)}%;background:${barColor}"></div></div>
+          <span style="font-size:10px;color:var(--muted);min-width:28px">${pct.toFixed(1)}%</span>
+        </div>
+      </div>
+      <input class="exp-input" type="number" value="${e.amount}" onchange="upExp(${e.id},'amount',this.value)" oninput="upExp(${e.id},'amount',this.value)">
+      <button onclick="delExp(${e.id})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--hint);padding:2px 4px">×</button>
+    </div>`;
+  }).join('');
+
+  // Budget chart
+  dc('budgetChart');
+  const bc=document.getElementById('budgetChart');
+  if(bc&&totalInc>0){
+    C['budgetChart']=new Chart(bc,{type:'pie',data:{
+      labels:[...ST.expenses.map(e=>e.name),'Loan EMIs','Free Cash'],
+      datasets:[{data:[...ST.expenses.map(e=>Math.max(0,+e.amount)),Math.round(totalEMI),Math.max(0,Math.round(savings))],backgroundColor:[...COLORS,'#9B59B6','#1ABC9C'],borderWidth:0}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{boxWidth:10,font:{size:10}}}}}});
+  }
+}
+function addExp(){ST.expenses.push({id:ST.nExpId++,icon:'💸',name:'New Category',amount:0,budget:5});renderIncome();}
+function delExp(id){ST.expenses=ST.expenses.filter(e=>e.id!==id);renderIncome();}
+function upExp(id,f,v){const e=ST.expenses.find(e=>e.id===id);if(e){e[f]=f==='amount'||f==='budget'?+v:v;renderIncome();}}
+
+/* ══════════════════════════════════════════════
+   LOANS
+══════════════════════════════════════════════ */
+function renderLoans(){
+  let tP=0,tI=0,tE=0,tO=0;
+  const rows=ST.loans.map(l=>{
+    const sc=sched(l.principal,l.rate,l.tenure);const e=emi(l.principal,l.rate,l.tenure);
+    const real=realCost(sc.totalInterest,sc.months);const out=outstanding(l);
+    tP+=l.principal;tI+=sc.totalInterest;tE+=e;if(out)tO+=out.outstanding;
+    return{l,sc,e,real,out};
+  });
+  const sorted=[...ST.loans].sort((a,b)=>b.rate-a.rate);
+
+  document.getElementById('s-loans').innerHTML=`
+  <div class="page-hdr"><h2>🏦 Loan Analyzer</h2><p>Real cost, inflation-adjusted · Avalanche payoff plan</p></div>
+  <div class="metrics-row">
+    <div class="met navy"><div class="met-label">Total Principal</div><div class="met-value navy">${S(tP)}</div></div>
+    <div class="met red"><div class="met-label">Total Interest</div><div class="met-value red">${S(tI)}</div></div>
+    <div class="met gold"><div class="met-label">Monthly EMIs</div><div class="met-value gold">${S(tE)}</div></div>
+    <div class="met purple"><div class="met-label">Outstanding Now</div><div class="met-value purple">${tO>0?S(tO):'—'}</div></div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-head"><div class="card-head-left"><span>⚙️</span>Settings</div></div>
+    <div class="form-row">
+      <div class="fg"><label class="flbl">Inflation Rate (%)</label><input class="finp" type="number" value="${ST.inflRate}" step="0.1" oninput="ST.inflRate=+this.value;renderLoans()"></div>
+      <div class="fg"><label class="flbl">Extra Payment (₹/mo)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${ST.extraPay}" oninput="ST.extraPay=+this.value;renderLoans()"></div></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <span style="font-size:15px;font-weight:800;color:var(--navy)">Your Loans</span>
+    <button class="btn btn-em btn-sm" onclick="addLoan()">+ Add Loan</button>
+  </div>
+  ${rows.map(({l,sc,e,real,out},idx)=>`
+  <div class="loan-item">
+    <div class="loan-color-strip" style="--lc:${COLORS[idx%COLORS.length]}"></div>
+    <div class="loan-item-head" onclick="toggleLoan(${l.id})">
+      <div><div class="loan-item-name">${l.name}</div><div class="loan-item-rate">${l.rate}% p.a. · ${l.tenure} months · EMI ${INR(e)}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${out?`<span class="badge bg-purple">₹${S(out.outstanding)} left</span>`:''}
+        <button onclick="event.stopPropagation();delLoan(${l.id})" style="background:rgba(231,76,60,0.15);border:none;color:var(--red);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;font-weight:700">✕</button>
+        <span style="color:rgba(255,255,255,0.4);font-size:13px" id="chev-${l.id}">▼</span>
+      </div>
+    </div>
+    <div id="lb-${l.id}" style="display:none">
+      <div class="loan-item-body">
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="fg"><label class="flbl">Loan Name</label><input class="finp" value="${l.name}" onchange="upLoan(${l.id},'name',this.value)"></div>
+          <div class="fg"><label class="flbl">Type</label><select class="finp" onchange="upLoan(${l.id},'type',this.value)">${['Home','Gold','Car','Personal','Education','Other'].map(t=>`<option${l.type===t?' selected':''}>${t}</option>`).join('')}</select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="fg"><label class="flbl">Principal (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${l.principal}" onchange="upLoan(${l.id},'principal',this.value)"></div></div>
+          <div class="fg"><label class="flbl">Rate (% p.a.)</label><input class="finp" type="number" value="${l.rate}" step="0.1" onchange="upLoan(${l.id},'rate',this.value)"></div>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <div class="fg"><label class="flbl">Tenure (months)</label><input class="finp" type="number" value="${l.tenure}" onchange="upLoan(${l.id},'tenure',this.value)"></div>
+          <div class="fg"><label class="flbl">Custom EMI (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${l.customEMI||''}" placeholder="Optional" onchange="upLoan(${l.id},'customEMI',this.value)"></div></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="fg"><label class="flbl">📅 Start Date</label><input class="finp" type="date" value="${l.startDate||''}" onchange="upLoan(${l.id},'startDate',this.value)"></div>
+          <div class="fg"><label class="flbl">📅 Paid Till Date</label><input class="finp" type="date" value="${l.paidTill||''}" onchange="upLoan(${l.id},'paidTill',this.value)"></div>
+        </div>
+        <div class="metrics-row" style="margin-bottom:14px">
+          <div class="met blue"><div class="met-label">Monthly EMI</div><div class="met-value blue" style="font-size:15px">${INR(e)}</div></div>
+          <div class="met red"><div class="met-label">Total Interest</div><div class="met-value red" style="font-size:15px">${S(sc.totalInterest)}</div></div>
+          <div class="met gold"><div class="met-label">Real Cost (today ₹)</div><div class="met-value gold" style="font-size:15px">${S(real)}</div></div>
+          <div class="met navy"><div class="met-label">Total Payable</div><div class="met-value navy" style="font-size:15px">${S(sc.totalPaid)}</div></div>
+        </div>
+        ${out?`
+        <div style="background:linear-gradient(135deg,#EBF5FB,#E8F8EF);border:1px solid #B8D9F5;border-radius:var(--r);padding:14px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">📊 Outstanding Status — as of ${l.paidTill}</div>
+          <div class="metrics-row" style="margin-bottom:10px">
+            <div class="met"><div class="met-label">EMIs Paid</div><div class="met-value" style="font-size:16px">${out.monthsPaid}/${l.tenure}</div></div>
+            <div class="met red"><div class="met-label">Outstanding</div><div class="met-value red" style="font-size:16px">${S(out.outstanding)}</div></div>
+          </div>
+          <div style="margin-bottom:4px;display:flex;justify-content:space-between;font-size:11px;color:var(--muted)"><span>Repayment Progress</span><span>${(out.monthsPaid/l.tenure*100).toFixed(0)}%</span></div>
+          <div class="prog-wrap" style="height:8px"><div class="prog-bar" style="width:${(out.monthsPaid/l.tenure*100).toFixed(1)}%;background:linear-gradient(90deg,var(--em),var(--blue))"></div></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:7px">Principal recovered: <strong style="color:var(--em)">${S(out.principalPaid)}</strong> · Interest paid: <strong style="color:var(--red)">${S(out.interestPaid)}</strong></div>
+        </div>`:l.startDate?`<div class="alert al-blue"><div class="alert-icon">💡</div><div>Enter <strong>Paid Till Date</strong> to see outstanding balance and repayment progress.</div></div>`:''}
+        <details>
+          <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--blue);padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px"><span>📋</span> Month-wise Schedule (${sc.months} months)</summary>
+          <div class="tbl-wrap tbl-scroll" style="margin-top:10px">
+            <table><thead><tr><th>Month</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+            <tbody>${sc.rows.slice(0,120).map(r=>{const pd=out&&r.month<=out.monthsPaid;return`<tr style="${pd?'opacity:0.4':''}"><td>${r.month}${pd?'✓':''}</td><td>${INR(r.emi)}</td><td style="color:var(--em)">${INR(r.principal)}</td><td style="color:var(--red)">${INR(r.interest)}</td><td>${INR(r.balance)}</td></tr>`;}).join('')}${sc.rows.length>120?`<tr><td colspan="5" style="text-align:center;color:var(--muted);font-style:italic;padding:8px">…${sc.rows.length-120} more</td></tr>`:''}</tbody>
+            <tfoot><tr class="tfoot"><td>Total</td><td>${INR(sc.totalPaid)}</td><td style="color:var(--em)">${INR(l.principal)}</td><td style="color:var(--red)">${INR(sc.totalInterest)}</td><td>—</td></tr></tfoot>
+            </table>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>`).join('')}
+  ${ST.loans.length>0?`
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">🎯</span>Debt Avalanche Roadmap</div></div>
+    <div class="alert al-em"><div class="alert-icon">✅</div><div>Pay minimum on all loans, focus extra on the highest-rate loan. When closed, cascade that freed EMI to the next.</div></div>
+    ${sorted.map((l,i)=>{
+      let freed=0;for(let j=0;j<i;j++)freed+=emi(sorted[j].principal,sorted[j].rate,sorted[j].tenure);
+      const ap=emi(l.principal,l.rate,l.tenure)+freed+ST.extraPay;
+      const acSc=sched(l.principal,l.rate,l.tenure,ap);
+      const stSc=sched(l.principal,l.rate,l.tenure);
+      const saved=stSc.totalInterest-acSc.totalInterest;
+      return`<div class="step-card">
+        <div class="step-num" style="background:${i===0?'var(--red)':'var(--em)'}">${i+1}</div>
+        <div class="step-body">
+          <h4>${l.name} <span class="badge ${i===0?'bg-red':'bg-em'}">${l.rate}%</span></h4>
+          <p>Pay <strong style="color:var(--em)">${INR(ap)}/mo</strong> · Closes in ${acSc.months} months${saved>100?` · Saves <strong style="color:var(--em)">${S(saved)}</strong>`:''}</p>
+        </div>
+      </div>`;
+    }).join('')}
+    <div class="card card-sm" style="background:var(--em-lt);border:1px solid #A9DFBF;margin-top:4px">
+      <div class="card-head"><div class="card-head-left">💡 Inflation: Real Cost of Debt</div></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">At <strong>${ST.inflRate}%</strong> inflation, your real interest burden today (in present rupee value) is <strong style="color:var(--em)">${S(ST.loans.reduce((s,l)=>{const sc=sched(l.principal,l.rate,l.tenure);return s+realCost(sc.totalInterest,sc.months);},0))}</strong> vs nominal <strong style="color:var(--red)">${S(ST.loans.reduce((s,l)=>s+sched(l.principal,l.rate,l.tenure).totalInterest,0))}</strong>.</div>
+    </div>
+  </div>`:''}`;
+}
+function toggleLoan(id){
+  const b=document.getElementById('lb-'+id),c=document.getElementById('chev-'+id);
+  if(!b)return;const open=b.style.display==='none'||!b.style.display;
+  b.style.display=open?'block':'none';if(c)c.textContent=open?'▲':'▼';
+}
+function addLoan(){ST.loans.push({id:ST.nLoanId++,name:'New Loan',type:'Other',principal:0,rate:0,tenure:12,startDate:'',paidTill:'',customEMI:''});renderLoans();}
+function delLoan(id){if(!confirm('Delete this loan?'))return;ST.loans=ST.loans.filter(l=>l.id!==id);renderLoans();}
+function upLoan(id,f,v){const l=ST.loans.find(l=>l.id===id);if(l){l[f]=['name','type','startDate','paidTill','customEMI'].includes(f)?v:+v||0;renderLoans();}}
+
+/* ══════════════════════════════════════════════
+   ACCELERATOR
+══════════════════════════════════════════════ */
+function renderAccel(){
+  document.getElementById('s-accel').innerHTML=`
+  <div class="page-hdr"><h2>🚀 EquiFlow Accelerator</h2><p>EMI split vs SIP — find your crossover point</p></div>
+  <div class="alert al-blue"><div class="alert-icon">💡</div><div><strong>Smart Split:</strong> Instead of paying full EMI, split part into a high-return SIP/Bond. Find the month where your investment can liquidate the remaining loan — the <strong>Crossover Point</strong>.</div></div>
+  <div class="card card-sm">
+    <div class="card-head"><div class="card-head-left"><span>⚙️</span>Configure</div></div>
+    <div class="fg"><label class="flbl">Select Loan</label>
+      <select class="finp" id="acLoan" onchange="calcAcc()">
+        <option value="">— Choose a loan —</option>
+        ${ST.loans.map(l=>`<option value="${l.id}">${l.name} (${l.rate}% · ${INR(emi(l.principal,l.rate,l.tenure))}/mo)</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label class="flbl">Divert to SIP (₹/mo)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" id="acSip" value="2000" step="500" oninput="calcAcc()"></div></div>
+      <div class="fg"><label class="flbl">SIP Annual Return (%)</label><input class="finp" type="number" id="acRet" value="12" step="0.5" oninput="calcAcc()"></div>
+    </div>
+  </div>
+  <div id="acResults"></div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">📈</span>Path A vs Path B</div></div>
+    <div class="chart-wrap-lg"><canvas id="acChart"></canvas></div>
+  </div>`;
+  if(ST.loans.length===1){document.getElementById('acLoan').value=ST.loans[0].id;calcAcc();}
+}
+function calcAcc(){
+  const lid=parseInt(document.getElementById('acLoan')?.value);
+  const loan=ST.loans.find(l=>l.id===lid);
+  if(!loan){document.getElementById('acResults').innerHTML='<div class="alert al-navy"><div class="alert-icon">👆</div><div>Select a loan to run analysis.</div></div>';dc('acChart');return;}
+  const stdEMI=emi(loan.principal,loan.rate,loan.tenure);
+  const sip=parseFloat(document.getElementById('acSip')?.value)||2000;
+  const ret=parseFloat(document.getElementById('acRet')?.value)||12;
+  if(sip>=stdEMI){document.getElementById('acResults').innerHTML='<div class="alert al-red"><div class="alert-icon">⚠️</div><div>SIP amount cannot exceed EMI.</div></div>';return;}
+  const pathA=sched(loan.principal,loan.rate,loan.tenure);
+  const pathB=sched(loan.principal,loan.rate,loan.tenure,stdEMI-sip);
+  const mr=ret/100/12;
+  let sv=0,xMo=null,sipData=[],bBal=[];
+  const max=Math.max(pathA.months,pathB.months)+6;
+  for(let m=1;m<=max;m++){
+    sv=(sv+sip)*(1+mr);
+    const bal=m<=pathB.rows.length?pathB.rows[m-1].balance:0;
+    sipData.push(Math.round(sv));bBal.push(Math.round(bal));
+    if(!xMo&&sv>=bal&&bal>0)xMo=m;
+  }
+  const saved=pathA.totalInterest-pathB.totalInterest;
+  const netBen=sipData[max-1]-Math.max(0,pathB.totalPaid-pathA.totalPaid);
+
+  document.getElementById('acResults').innerHTML=`
+  ${xMo?`<div class="crossover"><div class="crossover-lbl">⚡ Crossover Point — Month</div><div class="crossover-val">${xMo}</div><div class="crossover-lbl">Year ${Math.ceil(xMo/12)} · SIP can fully close your remaining loan at this point!</div></div>`:'<div class="alert al-gold"><div class="alert-icon">⚠️</div><div>No crossover within tenure. Try increasing SIP return rate.</div></div>'}
+  <div class="path-card path-a">
+    <div class="path-title">Path A — Full EMI</div>
+    <div style="font-size:12px;line-height:1.8">Monthly: <strong>${INR(stdEMI)}</strong><br>Total Interest: <strong>${S(pathA.totalInterest)}</strong><br>Closes: <strong>${pathA.months} months</strong><br>Wealth built: <strong>₹0</strong></div>
+  </div>
+  <div class="path-card path-b">
+    <div class="path-title">Path B — Split + SIP ✨</div>
+    <div style="font-size:12px;line-height:1.8">Loan: <strong>${INR(stdEMI-sip)}/mo</strong> + SIP: <strong>${INR(sip)}/mo</strong><br>Total Interest: <strong>${S(pathB.totalInterest)}</strong><br>Loan Closes: <strong>${pathB.months} months</strong><br>SIP value (${max} months): <strong style="color:var(--em2)">${S(sipData[max-1])}</strong></div>
+  </div>
+  <div class="alert al-em"><div class="alert-icon">💡</div><div><strong>Verdict:</strong> ${netBen>0?`Path B generates <strong>${S(netBen)}</strong> more wealth. Crossover at Month ${xMo||'—'} gives you flexibility to close the loan early.`:'Consider increasing the return rate or SIP tenure for better results.'}</div></div>`;
+
+  dc('acChart');
+  const ac=document.getElementById('acChart');
+  if(ac){
+    const aBal=pathA.rows.map(r=>Math.round(r.balance));while(aBal.length<max)aBal.push(0);
+    const labels=Array.from({length:max},(_,i)=>`Mo ${i+1}`);
+    C['acChart']=new Chart(ac,{type:'line',data:{labels,datasets:[
+      {label:'Path A Loan Balance',data:aBal,borderColor:'#E74C3C',tension:0.4,pointRadius:0,borderWidth:2,borderDash:[8,4]},
+      {label:'Path B Loan Balance',data:bBal,borderColor:'#3498DB',tension:0.4,pointRadius:0,borderWidth:2},
+      {label:'SIP Value (Path B)',data:sipData,borderColor:'#27AE60',backgroundColor:'rgba(39,174,96,0.07)',fill:true,tension:0.4,pointRadius:0,borderWidth:2.5},
+    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{ticks:{callback:v=>S(v),font:{size:10}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}});
+  }
+}
+
+/* ══════════════════════════════════════════════
+   GOALS
+══════════════════════════════════════════════ */
+function renderGoals(){
+  document.getElementById('s-goals').innerHTML=`
+  <div class="page-hdr"><h2>🎯 Goals & Cash Flow</h2><p>Sinking funds · Credit card float optimizer</p></div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">🏦</span>Sinking Funds</div><button class="btn btn-em btn-xs" onclick="addGoal()">+ Add Goal</button></div>
+    <div id="goalList"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">📊</span>Goals Overview</div></div>
+    <div class="chart-wrap-sm"><canvas id="goalsChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">💳</span>Credit Card Float Advisor</div></div>
+    <div class="alert al-navy"><div class="alert-icon">💡</div><div>Maximize interest-free days. No card numbers needed — just billing cycle info.</div></div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="fg"><label class="flbl">Purchase Date</label><input class="finp" type="date" id="pDate" oninput="calcFloat()"></div>
+      <div class="fg"><label class="flbl">Card 1 — Statement Day</label><input class="finp" type="number" id="c1s" placeholder="e.g. 5" min="1" max="31" oninput="calcFloat()"></div>
+    </div>
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="fg"><label class="flbl">Card 1 — Due (days after statement)</label><input class="finp" type="number" id="c1d" placeholder="e.g. 15" oninput="calcFloat()"></div>
+      <div class="fg"><label class="flbl">Card 2 — Statement Day</label><input class="finp" type="number" id="c2s" placeholder="e.g. 15" oninput="calcFloat()"></div>
+    </div>
+    <div class="fg"><label class="flbl">Card 2 — Due (days after statement)</label><input class="finp" type="number" id="c2d" placeholder="e.g. 20" oninput="calcFloat()"></div>
+    <div id="floatResult"></div>
+  </div>`;
+
+  // Goals
+  const gl=document.getElementById('goalList');
+  gl.innerHTML=ST.goals.map(g=>{
+    const needed=Math.max(0,g.target-g.saved);
+    const monthly=g.months>0?needed/g.months:needed;
+    const prog=g.target>0?Math.min(100,g.saved/g.target*100):0;
+    return`<div class="goal-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px">
+        <input style="font-size:15px;font-weight:800;color:var(--navy);border:none;background:transparent;font-family:'DM Serif Display',serif;flex:1;outline:none" value="${g.name}" onchange="upGoal(${g.id},'name',this.value)">
+        <button onclick="delGoal(${g.id})" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--hint);flex-shrink:0">×</button>
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <div class="fg"><label class="flbl">Target (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${g.target}" onchange="upGoal(${g.id},'target',this.value)"></div></div>
+        <div class="fg"><label class="flbl">Months to Go</label><input class="finp" type="number" value="${g.months}" onchange="upGoal(${g.id},'months',this.value)"></div>
+      </div>
+      <div class="fg"><label class="flbl">Already Saved (₹)</label><div class="pfx"><span class="pfx-sym">₹</span><input class="finp" type="number" value="${g.saved}" onchange="upGoal(${g.id},'saved',this.value)"></div></div>
+      <div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px"><span>Progress — ${prog.toFixed(0)}% saved</span><span>${INR(g.saved)} of ${INR(g.target)}</span></div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${prog.toFixed(1)}%;background:var(--em)"></div></div>
+        <div style="margin-top:10px;padding:10px 14px;background:var(--em-lt);border-radius:var(--r);font-size:13px">
+          💰 Save <strong style="color:var(--em2)">${INR(monthly)}/month</strong> for ${g.months} month${g.months!==1?'s':''} to reach your goal.
+        </div>
+      </div>
+    </div>`;
+  }).join('')||'<div style="text-align:center;padding:24px;color:var(--hint)">No goals yet. Add one above.</div>';
+
+  // Goals chart
+  dc('goalsChart');
+  const gc=document.getElementById('goalsChart');
+  if(gc&&ST.goals.length){
+    C['goalsChart']=new Chart(gc,{type:'bar',data:{
+      labels:ST.goals.map(g=>g.name),
+      datasets:[{label:'Saved',data:ST.goals.map(g=>g.saved),backgroundColor:'#27AE60'},{label:'Remaining',data:ST.goals.map(g=>Math.max(0,g.target-g.saved)),backgroundColor:'#E2E8F0'}]
+    },options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,ticks:{callback:v=>S(v),font:{size:10}}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}});
+  }
+  // Set today
+  document.getElementById('pDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('c1s').value=5;document.getElementById('c1d').value=15;
+  document.getElementById('c2s').value=15;document.getElementById('c2d').value=20;
+  calcFloat();
+}
+function addGoal(){ST.goals.push({id:ST.nGoalId++,name:'New Goal',target:50000,months:6,saved:0});renderGoals();}
+function delGoal(id){ST.goals=ST.goals.filter(g=>g.id!==id);renderGoals();}
+function upGoal(id,f,v){const g=ST.goals.find(g=>g.id===id);if(g){g[f]=f==='name'?v:+v||0;renderGoals();}}
+function calcFloat(){
+  const pd=document.getElementById('pDate')?.value;
+  const c1s=parseInt(document.getElementById('c1s')?.value)||0;
+  const c1d=parseInt(document.getElementById('c1d')?.value)||0;
+  const c2s=parseInt(document.getElementById('c2s')?.value)||0;
+  const c2d=parseInt(document.getElementById('c2d')?.value)||0;
+  if(!pd||!c1s||!c1d){document.getElementById('floatResult').innerHTML='';return;}
+  const d=new Date(pd).getDate();
+  const calc=(sd,dd)=>{let dts=sd>d?sd-d:(31-d)+sd;return dts+dd;};
+  const f1=calc(c1s,c1d);const f2=c2s&&c2d?calc(c2s,c2d):null;
+  const best=f2&&f2>f1?{c:'Card 2',d:f2,other:`Card 1: ${f1} days`}:{c:'Card 1',d:f1,other:f2?`Card 2: ${f2} days`:'Only Card 1 configured'};
+  document.getElementById('floatResult').innerHTML=`<div class="alert ${best.d>=40?'al-em':'al-gold'}" style="margin-top:12px"><div class="alert-icon">${best.d>=40?'✅':'💡'}</div><div>Use <strong>${best.c}</strong> for this purchase.<br>Interest-free period: <strong>${best.d} days</strong>${best.d>=40?' — Excellent!':''}.<br><span style="font-size:11px">${best.other}</span></div></div>`;
+}
+
+/* ══════════════════════════════════════════════
+   REPORTS
+══════════════════════════════════════════════ */
+function renderReports(){
+  let tP=0,tI=0,tPy=0,tE=0;
+  ST.loans.forEach(l=>{const sc=sched(l.principal,l.rate,l.tenure);const e=emi(l.principal,l.rate,l.tenure);tP+=l.principal;tI+=sc.totalInterest;tPy+=sc.totalPaid;tE+=e;});
+
+  document.getElementById('s-reports').innerHTML=`
+  <div class="page-hdr"><h2>📊 Reports & Export</h2><p>PDF blueprint · Excel workbook · Comprehensive analysis</p></div>
+  <div class="metrics-row">
+    <div class="met navy"><div class="met-label">Total Principal</div><div class="met-value navy">${S(tP)}</div></div>
+    <div class="met red"><div class="met-label">Total Interest</div><div class="met-value red">${S(tI)}</div></div>
+    <div class="met gold"><div class="met-label">Total Payable</div><div class="met-value gold">${S(tPy)}</div></div>
+    <div class="met blue"><div class="met-label">Monthly EMIs</div><div class="met-value blue">${S(tE)}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span>📄</span>Monthly Strategic Blueprint</div></div>
+    <div class="alert al-em"><div class="alert-icon">✅</div><div>PDF includes: Loan summary, Avalanche plan, Accelerator comparison, Sinking funds, Inflation analysis, Disclaimer.</div></div>
+    <button class="btn btn-gold btn-full" onclick="exportPDF()">📄 Generate PDF Blueprint</button>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span>📥</span>Excel Data Export</div></div>
+    <div class="alert al-blue"><div class="alert-icon">📊</div><div>Includes: All Loans Summary, Month-wise Schedules, Expenses, Goals Tracker.</div></div>
+    <button class="btn btn-em btn-full" onclick="exportExcel()">📥 Export to Excel (.xlsx)</button>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span class="card-title-icon">📈</span>Debt Reduction vs Wealth Growth</div></div>
+    <div class="chart-wrap-lg"><canvas id="repChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span>📋</span>All Loans Summary</div></div>
+    <div class="tbl-wrap tbl-scroll">
+      <table>
+        <thead><tr><th>Loan</th><th>Rate</th><th>EMI/mo</th><th>Interest</th><th>Real Cost</th><th>Total</th></tr></thead>
+        <tbody>
+          ${ST.loans.map(l=>{const sc=sched(l.principal,l.rate,l.tenure);const e=emi(l.principal,l.rate,l.tenure);const real=realCost(sc.totalInterest,sc.months);const out=outstanding(l);return`<tr><td><strong>${l.name}</strong><br><span style="font-size:10px;color:var(--muted)">${l.type} · ${l.tenure}mo${out?` · <span style="color:var(--purple)">Out: ${S(out.outstanding)}</span>`:''}</span></td><td style="color:var(--red);font-weight:700">${l.rate}%</td><td style="color:var(--blue);font-weight:700">${INR(e)}</td><td style="color:var(--red)">${S(sc.totalInterest)}</td><td style="color:var(--gold)">${S(real)}</td><td>${S(sc.totalPaid)}</td></tr>`;}).join('')}
+        </tbody>
+        <tfoot><tr class="tfoot"><td><strong>TOTAL</strong></td><td>—</td><td>${S(tE)}</td><td style="color:var(--red)">${S(tI)}</td><td>—</td><td>${S(tPy)}</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+  <footer style="text-align:center;padding:20px;font-size:10.5px;color:var(--muted);line-height:1.8;border-top:1px solid var(--border)">
+    <strong style="color:var(--navy)">© 2026 EquiFlow. All rights reserved.</strong><br>
+    <em>Financial Disclaimer: EquiFlow is for educational purposes only and does not constitute professional financial, investment, tax, or legal advice. Always consult a qualified financial advisor before making major financial decisions. Past returns are not indicative of future results.</em>
+  </footer>`;
+
+  dc('repChart');
+  const rc=document.getElementById('repChart');
+  if(rc&&ST.loans.length){
+    const maxM=Math.max(...ST.loans.map(l=>l.tenure));
+    const step=Math.max(1,Math.floor(maxM/20));
+    const labels=Array.from({length:Math.ceil(maxM/step)},(_,i)=>`Mo ${(i+1)*step}`);
+    const datasets=ST.loans.map((l,i)=>{
+      const sc=sched(l.principal,l.rate,l.tenure);
+      return{label:l.name,data:labels.map((_,idx)=>{const m=(idx+1)*step;return m<=sc.rows.length?Math.round(sc.rows[m-1].balance):0;}),borderColor:COLORS[i],tension:0.4,pointRadius:0,borderWidth:2,fill:false};
+    });
+    const sipR=12/100/12;let sv=0;
+    const sipLine=labels.map(()=>{for(let m=0;m<step;m++)sv=(sv+5000)*(1+sipR);return Math.round(sv);});
+    datasets.push({label:'₹5k/mo SIP @12% (wealth reference)',data:sipLine,borderColor:'#27AE60',borderDash:[6,4],tension:0.4,pointRadius:0,borderWidth:2,fill:false});
+    C['repChart']=new Chart(rc,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{ticks:{callback:v=>S(v),font:{size:10}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}}}}});
+  }
+}
+
+/* ══════════════════════════════════════════════
+   ADMIN
+══════════════════════════════════════════════ */
+function renderAdmin(){
+  if(!ST.isAdmin){document.getElementById('s-admin').innerHTML='<div class="alert al-red"><div class="alert-icon">🔒</div><div><strong>Admin Only.</strong> Access denied.</div></div>';return;}
+  document.getElementById('s-admin').innerHTML=`
+  <div class="page-hdr"><h2>⚙️ Admin Dashboard</h2><p>Platform metrics · System analytics</p></div>
+  <div class="alert al-red"><div class="alert-icon">🔐</div><div><strong>Restricted:</strong> Admin view only.</div></div>
+  <div class="metrics-row">
+    <div class="admin-card"><div class="admin-card-label">Total Users</div><div class="admin-card-value">${(ST.adminData.users+Math.floor(Math.random()*5)).toLocaleString('en-IN')}</div></div>
+    <div class="admin-card"><div class="admin-card-label">Active Sessions</div><div class="admin-card-value">${ST.adminData.sessions+Math.floor(Math.random()*12)}</div></div>
+    <div class="admin-card"><div class="admin-card-label">Loans Tracked</div><div class="admin-card-value">${(ST.adminData.loans+ST.loans.length).toLocaleString('en-IN')}</div></div>
+    <div class="admin-card"><div class="admin-card-label">PDF Reports</div><div class="admin-card-value">${ST.adminData.pdfs+Math.floor(Math.random()*8)}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span>📊</span>Usage Analytics (2026)</div></div>
+    <div class="chart-wrap"><canvas id="adminChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-head-left"><span>👥</span>Recent Registrations</div></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>User</th><th>Joined</th><th>Loans</th><th>Status</th></tr></thead>
+      <tbody>${[['Arjun M.','12 May 2026',3,'Active'],['Priya K.','11 May 2026',1,'Active'],['Rahul S.','10 May 2026',5,'Active'],['Meena T.','09 May 2026',2,'Away'],['Vikram P.','08 May 2026',4,'Active']].map(([u,d,l,s])=>`<tr><td><strong>${u}</strong></td><td style="color:var(--muted);font-size:11px">${d}</td><td>${l}</td><td><span class="badge ${s==='Active'?'bg-em':'bg-navy'}">${s}</span></td></tr>`).join('')}</tbody>
+    </table></div>
+  </div>`;
+
+  dc('adminChart');
+  const ac=document.getElementById('adminChart');
+  if(ac){C['adminChart']=new Chart(ac,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'New Users',data:[84,112,98,135,167,189],backgroundColor:'#27AE60'},{label:'PDF Reports',data:[34,56,48,72,93,114],backgroundColor:'#3498DB'},{label:'Excel Exports',data:[22,38,31,45,67,88],backgroundColor:'#F0A500'}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10}}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}});}
+}
+
+/* ══════════════════════════════════════════════
+   EXCEL EXPORT
+══════════════════════════════════════════════ */
+function exportExcel(){
+  const wb=XLSX.utils.book_new();
+  const totalInc=(+ST.income||0)+(+ST.otherIncome||0);
+  const totalEMI=ST.loans.reduce((s,l)=>s+emi(l.principal,l.rate,l.tenure),0);
+
+  // Summary sheet
+  const s1=[['EquiFlow — Loan Portfolio Report','','Generated:',new Date().toLocaleDateString('en-IN')],[''],
+    ['Loan','Type','Principal','Rate %','Tenure (mo)','EMI/mo','Total Interest','Real Cost (today ₹)','Total Payable','Outstanding']];
+  let tP=0,tI=0,tPy=0,tE=0;
+  ST.loans.forEach(l=>{
+    const sc=sched(l.principal,l.rate,l.tenure);const e=emi(l.principal,l.rate,l.tenure);
+    const real=realCost(sc.totalInterest,sc.months);const out=outstanding(l);
+    tP+=l.principal;tI+=sc.totalInterest;tPy+=sc.totalPaid;tE+=e;
+    s1.push([l.name,l.type,Math.round(l.principal),l.rate,l.tenure,Math.round(e),Math.round(sc.totalInterest),Math.round(real),Math.round(sc.totalPaid),out?Math.round(out.outstanding):'']);
+  });
+  s1.push(['TOTAL','',Math.round(tP),'','',Math.round(tE),Math.round(tI),'',Math.round(tPy),'']);
+  const ws1=XLSX.utils.aoa_to_sheet(s1);
+  ws1['!cols']=[{wch:22},{wch:12},{wch:16},{wch:8},{wch:12},{wch:14},{wch:18},{wch:18},{wch:18},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Loan Summary');
+
+  // Expenses sheet
+  const s2=[['Category','Amount (₹)','% of Income']];
+  s2.push(['Monthly Income',Math.round(totalInc),'100%']);
+  ST.expenses.forEach(e=>s2.push([e.name,Math.round(+e.amount||0),totalInc>0?PCT(+e.amount/totalInc*100):'0%']));
+  s2.push(['Loan EMIs',Math.round(totalEMI),'']);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s2),'Budget');
+
+  // Goals sheet
+  const s3=[['Goal','Target','Saved','Remaining','Months','Monthly Needed']];
+  ST.goals.forEach(g=>{const n=Math.max(0,g.target-g.saved);s3.push([g.name,g.target,g.saved,n,g.months,g.months?Math.round(n/g.months):n]);});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(s3),'Goals');
+
+  // Individual schedules
+  ST.loans.forEach(l=>{
+    const sc=sched(l.principal,l.rate,l.tenure);
+    const rows=[['Month','EMI','Principal','Interest','Balance']];
+    sc.rows.forEach(r=>rows.push([r.month,Math.round(r.emi),Math.round(r.principal),Math.round(r.interest),Math.round(r.balance)]));
+    rows.push(['TOTAL',Math.round(sc.totalPaid),Math.round(l.principal),Math.round(sc.totalInterest),'']);
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),l.name.replace(/[\/\\*?\[\]:]/g,'').substring(0,28));
+  });
+  XLSX.writeFile(wb,'EquiFlow_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Excel downloaded! 📊');
+}
+
+/* ══════════════════════════════════════════════
+   PDF EXPORT
+══════════════════════════════════════════════ */
+function exportPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  const W=210,M=16,TW=W-M*2;
+  const navy=[13,27,42],em=[39,174,96],gold=[240,165,0],red=[231,76,60],gray=[100,116,139],lt=[240,244,248];
+  let y=16;
+
+  // Header
+  doc.setFillColor(...navy);doc.rect(0,0,W,40,'F');
+  // Logo text
+  doc.setTextColor(...em);doc.setFontSize(24);doc.setFont('helvetica','bold');doc.text('EquiFlow',M,22);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(180,200,220);
+  doc.text('DEBT ACCELERATOR & FINANCE ARCHITECT',M,30);
+  doc.setTextColor(...em);doc.setFontSize(8);
+  doc.text('Monthly Strategic Blueprint',M,37);
+  doc.setTextColor(150,160,170);doc.text('Generated: '+new Date().toLocaleDateString('en-IN')+'  ·  User: '+(ST.user?.name||'EquiFlow User'),W-M,37,{align:'right'});
+  y=50;
+
+  const sec=(title,color=navy)=>{
+    doc.setFillColor(...color);doc.roundedRect(M,y,TW,8,2,2,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+    doc.text(title.toUpperCase(),M+5,y+5.5);y+=12;
+  };
+  const row=(a,b,ac=gray,bc=navy)=>{
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(...ac);doc.text(a,M+2,y);
+    doc.setFont('helvetica','bold');doc.setTextColor(...bc);doc.text(b,W-M,y,{align:'right'});y+=6;
+  };
+  const mBox=(x,w,lbl,val,vc=navy)=>{
+    doc.setFillColor(...lt);doc.roundedRect(x,y,w-3,18,2,2,'F');
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(...gray);doc.text(lbl,x+3,y+5);
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(...vc);doc.text(val,x+3,y+13.5);
+  };
+
+  // Income summary
+  const totalInc=(+ST.income||0)+(+ST.otherIncome||0);
+  const totalExp=ST.expenses.reduce((s,e)=>s+(+e.amount||0),0);
+  const totalEMI=ST.loans.reduce((s,l)=>s+emi(l.principal,l.rate,l.tenure),0);
+  const netCash=totalInc-totalExp-totalEMI;
+  sec('Income & Cash Flow Summary');
+  const bw=TW/4;
+  mBox(M,bw,'Total Income',INR(totalInc),em);
+  mBox(M+bw,bw,'Expenses',INR(totalExp),red);
+  mBox(M+bw*2,bw,'Monthly EMIs',INR(totalEMI),gold);
+  mBox(M+bw*3,bw,'Net Cash Flow',INR(netCash),netCash>=0?em:red);
+  y+=22;
+
+  // Loan summary
+  sec('Loan Portfolio Summary');
+  let tP=0,tI=0,tPy=0;
+  ST.loans.forEach(l=>{
+    const sc=sched(l.principal,l.rate,l.tenure);const e=emi(l.principal,l.rate,l.tenure);
+    const real=realCost(sc.totalInterest,sc.months);const out=outstanding(l);
+    tP+=l.principal;tI+=sc.totalInterest;tPy+=sc.totalPaid;
+    doc.setFillColor(248,250,252);doc.roundedRect(M,y,TW,14,2,2,'F');
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(...navy);doc.text(l.name,M+3,y+5.5);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...gray);
+    doc.text(`${l.type} · ${l.rate}% · ${l.tenure}mo · EMI ${INR(e)}`,M+3,y+11);
+    doc.setFont('helvetica','bold');doc.setTextColor(...red);doc.text('Int: '+S(sc.totalInterest),W-M-64,y+5.5);
+    doc.setTextColor(...gold);doc.text('Real: '+S(real),W-M-64,y+11);
+    doc.setTextColor(...navy);doc.text('Total: '+S(sc.totalPaid),W-M,y+5.5,{align:'right'});
+    if(out){doc.setTextColor(155,89,182);doc.text('O/S: '+S(out.outstanding),W-M,y+11,{align:'right'});}
+    y+=17;
+  });
+  row('Total Principal',INR(tP));row('Total Interest',INR(tI),gray,red);row('Total Payable',INR(tPy));y+=4;
+
+  // Avalanche
+  sec('Debt Avalanche Roadmap',em);
+  const sorted=[...ST.loans].sort((a,b)=>b.rate-a.rate);
+  let freed=0;
+  sorted.forEach((l,i)=>{
+    const e=emi(l.principal,l.rate,l.tenure);const ap=e+freed;
+    const acSc=sched(l.principal,l.rate,l.tenure,ap);const stSc=sched(l.principal,l.rate,l.tenure);
+    const sv=stSc.totalInterest-acSc.totalInterest;
+    doc.setFillColor(i===0?252:240,i===0?232:248,i===0?232:240);doc.roundedRect(M,y,TW,10,2,2,'F');
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(...em);doc.text('STEP '+(i+1),M+3,y+7);
+    doc.setTextColor(...navy);doc.text(l.name,M+22,y+7);
+    doc.setFont('helvetica','normal');doc.setTextColor(...gray);doc.setFontSize(8);
+    doc.text(`${l.rate}% · Pay ${INR(ap)}/mo · Closes ${acSc.months}mo${sv>100?' · Saves '+S(sv):''}`,M+70,y+7);
+    freed+=e;y+=13;
+  });y+=4;
+
+  // Goals
+  if(ST.goals.length){
+    sec('Sinking Funds & Savings Goals',gold);
+    ST.goals.forEach(g=>{
+      const n=Math.max(0,g.target-g.saved);const m=g.months>0?n/g.months:n;
+      row(`${g.name} (${g.months} months)`,`Save ${INR(m)}/mo · Target ${INR(g.target)}`,gray,em);
+    });y+=4;
+  }
+
+  // Accelerator
+  sec('EquiFlow Accelerator — EMI Split',[52,152,219]);
+  const fl=ST.loans[0];
+  if(fl){const se=emi(fl.principal,fl.rate,fl.tenure);row('Loan',fl.name);row('Full EMI (Path A)',INR(se)+'/month — full to loan',gray,red);row('Split EMI (Path B)',INR(se-2000)+'/month to loan + ₹2,000/month SIP',gray,em);const sv12=2000*Math.pow(1+12/100/12,Math.min(fl.tenure,120))*(Math.pow(1+12/100/12,Math.min(fl.tenure,120))-1)/(12/100/12);row('Estimated SIP value',S(sv12)+' over '+Math.min(fl.tenure,120)+' months',gray,em);}
+  y+=4;
+
+  // Footer
+  const pH=doc.internal.pageSize.getHeight();
+  doc.setFillColor(...navy);doc.rect(0,pH-24,W,24,'F');
+  doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...em);doc.text('© 2026 EquiFlow. All rights reserved.',M,pH-15);
+  doc.setFont('helvetica','normal');doc.setTextColor(130,145,160);doc.setFontSize(7);
+  doc.text('DISCLAIMER: This document is for educational purposes only. Not professional financial advice.',M,pH-9);
+  doc.text('Consult a qualified financial advisor. Past returns ≠ future results.',M,pH-4);
+
+  doc.save('EquiFlow_Blueprint_'+new Date().toISOString().slice(0,10)+'.pdf');
+  toast('PDF Blueprint downloaded! 📄');
+}
+
+/* ── INIT ── */
+window.addEventListener('load',()=>{
+  // Pre-set demo date
+  setTimeout(()=>{
+    const pd=document.getElementById('pDate');if(pd)pd.value=new Date().toISOString().slice(0,10);
+  },100);
+});
+</script>
+</body>
+</html>
